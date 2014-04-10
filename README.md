@@ -5,8 +5,8 @@ A simple log library for go programs.
 
 ### Features
 
-logger can output formated log to log file.  
-Cut log file by daily or file size.
+Logger can output formated log to log file.  
+Cut log file by daily or file size.  
 Easy to use for any golang program.
 
 ### Usage
