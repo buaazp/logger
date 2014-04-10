@@ -40,7 +40,7 @@ const (
 	ALL LEVEL = iota
 	DEBUG
 	INFO
-	WARN
+	WARNING
 	ERROR
 	FATAL
 	OFF
@@ -208,7 +208,7 @@ func Warnln(v ...interface{}) {
 	defer catchError()
 	logObj.mu.RLock()
 	defer logObj.mu.RUnlock()
-	if logLevel <= WARN {
+	if logLevel <= WARNING {
 		logObj.lg.Output(2, fmt.Sprintln("[WARNING]", v))
 		consoleln("[WARNING]", v)
 	}
@@ -270,7 +270,7 @@ func Warn(format string, v ...interface{}) {
 	defer catchError()
 	logObj.mu.RLock()
 	defer logObj.mu.RUnlock()
-	if logLevel <= WARN {
+	if logLevel <= WARNING {
 		logObj.lg.Output(2, fmt.Sprintf("[WARNING] "+format, v...))
 		console("[WARNING] "+format, v...)
 	}
