@@ -158,7 +158,7 @@ func Debugln(v ...interface{}) {
 	defer logObj.mu.RUnlock()
 
 	if logLevel <= DEBUG {
-		logObj.lg.Output(2, fmt.Sprintln("[DEBUG]", v))
+		logObj.lg.Output(2, fmt.Sprintf("[DEBUG] %s", fmt.Sprintln(v...)))
 		if consoleAppender {
 			stdlog.Output(2, fmt.Sprintf("[DEBUG] %s", fmt.Sprintln(v...)))
 		}
@@ -172,7 +172,7 @@ func Infoln(v ...interface{}) {
 	logObj.mu.RLock()
 	defer logObj.mu.RUnlock()
 	if logLevel <= INFO {
-		logObj.lg.Output(2, fmt.Sprintln("[INFO]", v))
+		logObj.lg.Output(2, fmt.Sprintf("[INFO] %s", fmt.Sprintln(v...)))
 		if consoleAppender {
 			stdlog.Output(2, fmt.Sprintf("[INFO] %s", fmt.Sprintln(v...)))
 		}
@@ -186,7 +186,7 @@ func Warnln(v ...interface{}) {
 	logObj.mu.RLock()
 	defer logObj.mu.RUnlock()
 	if logLevel <= WARNING {
-		logObj.lg.Output(2, fmt.Sprintln("[WARNING]", v))
+		logObj.lg.Output(2, fmt.Sprintf("[WARNING] %s", fmt.Sprintln(v...)))
 		if consoleAppender {
 			stdlog.Output(2, fmt.Sprintf("[WARNING] %s", fmt.Sprintln(v...)))
 		}
@@ -200,7 +200,7 @@ func Errorln(v ...interface{}) {
 	logObj.mu.RLock()
 	defer logObj.mu.RUnlock()
 	if logLevel <= ERROR {
-		logObj.lg.Output(2, fmt.Sprintln("[ERROR]", v))
+		logObj.lg.Output(2, fmt.Sprintf("[ERROR] %s", fmt.Sprintln(v...)))
 		if consoleAppender {
 			stdlog.Output(2, fmt.Sprintf("[ERROR] %s", fmt.Sprintln(v...)))
 		}
@@ -214,7 +214,7 @@ func Fatalln(v ...interface{}) {
 	logObj.mu.RLock()
 	defer logObj.mu.RUnlock()
 	if logLevel <= FATAL {
-		logObj.lg.Output(2, fmt.Sprintln("[FATAL]", v))
+		logObj.lg.Output(2, fmt.Sprintf("[FATAL] %s", fmt.Sprintln(v...)))
 		if consoleAppender {
 			stdlog.Output(2, fmt.Sprintf("[FATAL] %s", fmt.Sprintln(v...)))
 		}
