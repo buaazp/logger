@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"runtime"
 	"strconv"
 	"sync"
 	"time"
@@ -23,6 +22,7 @@ var dailyRolling bool = true
 var consoleAppender bool = true
 var RollingFile bool = false
 var logObj *_FILE
+var stdlog *log.Logger
 
 const DATEFORMAT = "2006-01-02"
 
@@ -81,6 +81,7 @@ func Open(fileDir, fileName string) {
 
 	logObj.logfile, _ = os.OpenFile(fileDir+"/"+fileName, os.O_RDWR|os.O_APPEND|os.O_CREATE, 0644)
 	logObj.lg = log.New(logObj.logfile, "", log.Ldate|log.Ltime|log.Lshortfile)
+	stdlog = log.New(os.Stdout, "", log.Ldate|log.Ltime|log.Lshortfile)
 }
 
 //指定日志文件备份方式为日期的方式
@@ -97,6 +98,7 @@ func OpenRollDaily(fileDir, fileName string) {
 	if !logObj.isMustRename() {
 		logObj.logfile, _ = os.OpenFile(fileDir+"/"+fileName, os.O_RDWR|os.O_APPEND|os.O_CREATE, 0644)
 		logObj.lg = log.New(logObj.logfile, "", log.Ldate|log.Ltime|log.Lshortfile)
+		stdlog = log.New(os.Stdout, "", log.Ldate|log.Ltime|log.Lshortfile)
 	} else {
 		logObj.rename()
 	}
@@ -127,6 +129,7 @@ func OpenRollSize(fileDir, fileName string, maxNumber int32, maxSize int64, _uni
 	if !logObj.isMustRename() {
 		logObj.logfile, _ = os.OpenFile(fileDir+"/"+fileName, os.O_RDWR|os.O_APPEND|os.O_CREATE, 0644)
 		logObj.lg = log.New(logObj.logfile, "", log.Ldate|log.Ltime|log.Lshortfile)
+		stdlog = log.New(os.Stdout, "", log.Ldate|log.Ltime|log.Lshortfile)
 	} else {
 		logObj.rename()
 	}
@@ -137,36 +140,6 @@ func Close() {
 	logObj.mu.RLock()
 	if logObj.logfile != nil {
 		logObj.logfile.Close()
-	}
-}
-
-func console(format string, s ...interface{}) {
-	if consoleAppender {
-		_, file, line, _ := runtime.Caller(2)
-		short := file
-		for i := len(file) - 1; i > 0; i-- {
-			if file[i] == '/' {
-				short = file[i+1:]
-				break
-			}
-		}
-		file = short
-		//log.Println(file+":"+strconv.Itoa(line), s)
-		log.Printf(file+":"+strconv.Itoa(line)+": "+format, s...)
-	}
-}
-func consoleln(s ...interface{}) {
-	if consoleAppender {
-		_, file, line, _ := runtime.Caller(2)
-		short := file
-		for i := len(file) - 1; i > 0; i-- {
-			if file[i] == '/' {
-				short = file[i+1:]
-				break
-			}
-		}
-		file = short
-		log.Println(file+":"+strconv.Itoa(line), s)
 	}
 }
 
@@ -186,7 +159,9 @@ func Debugln(v ...interface{}) {
 
 	if logLevel <= DEBUG {
 		logObj.lg.Output(2, fmt.Sprintln("[DEBUG]", v))
-		consoleln("[DEBUG]", v)
+		if consoleAppender {
+			stdlog.Output(2, fmt.Sprintf("[DEBUG] %s", fmt.Sprintln(v...)))
+		}
 	}
 }
 func Infoln(v ...interface{}) {
@@ -198,7 +173,9 @@ func Infoln(v ...interface{}) {
 	defer logObj.mu.RUnlock()
 	if logLevel <= INFO {
 		logObj.lg.Output(2, fmt.Sprintln("[INFO]", v))
-		consoleln("[INFO]", v)
+		if consoleAppender {
+			stdlog.Output(2, fmt.Sprintf("[INFO] %s", fmt.Sprintln(v...)))
+		}
 	}
 }
 func Warnln(v ...interface{}) {
@@ -210,7 +187,9 @@ func Warnln(v ...interface{}) {
 	defer logObj.mu.RUnlock()
 	if logLevel <= WARNING {
 		logObj.lg.Output(2, fmt.Sprintln("[WARNING]", v))
-		consoleln("[WARNING]", v)
+		if consoleAppender {
+			stdlog.Output(2, fmt.Sprintf("[WARNING] %s", fmt.Sprintln(v...)))
+		}
 	}
 }
 func Errorln(v ...interface{}) {
@@ -222,7 +201,9 @@ func Errorln(v ...interface{}) {
 	defer logObj.mu.RUnlock()
 	if logLevel <= ERROR {
 		logObj.lg.Output(2, fmt.Sprintln("[ERROR]", v))
-		consoleln("[ERROR]", v)
+		if consoleAppender {
+			stdlog.Output(2, fmt.Sprintf("[ERROR] %s", fmt.Sprintln(v...)))
+		}
 	}
 }
 func Fatalln(v ...interface{}) {
@@ -234,7 +215,9 @@ func Fatalln(v ...interface{}) {
 	defer logObj.mu.RUnlock()
 	if logLevel <= FATAL {
 		logObj.lg.Output(2, fmt.Sprintln("[FATAL]", v))
-		consoleln("[FATAL]", v)
+		if consoleAppender {
+			stdlog.Output(2, fmt.Sprintf("[FATAL] %s", fmt.Sprintln(v...)))
+		}
 	}
 }
 
@@ -248,7 +231,9 @@ func Debug(format string, v ...interface{}) {
 
 	if logLevel <= DEBUG {
 		logObj.lg.Output(2, fmt.Sprintf("[DEBUG] "+format, v...))
-		console("[DEBUG] "+format, v...)
+		if consoleAppender {
+			stdlog.Output(2, fmt.Sprintf("[DEBUG] "+format, v...))
+		}
 	}
 }
 func Info(format string, v ...interface{}) {
@@ -260,7 +245,9 @@ func Info(format string, v ...interface{}) {
 	defer logObj.mu.RUnlock()
 	if logLevel <= INFO {
 		logObj.lg.Output(2, fmt.Sprintf("[INFO] "+format, v...))
-		console("[INFO] "+format, v...)
+		if consoleAppender {
+			stdlog.Output(2, fmt.Sprintf("[INFO] "+format, v...))
+		}
 	}
 }
 func Warn(format string, v ...interface{}) {
@@ -272,7 +259,9 @@ func Warn(format string, v ...interface{}) {
 	defer logObj.mu.RUnlock()
 	if logLevel <= WARNING {
 		logObj.lg.Output(2, fmt.Sprintf("[WARNING] "+format, v...))
-		console("[WARNING] "+format, v...)
+		if consoleAppender {
+			stdlog.Output(2, fmt.Sprintf("[WARNING] "+format, v...))
+		}
 	}
 }
 func Error(format string, v ...interface{}) {
@@ -284,7 +273,9 @@ func Error(format string, v ...interface{}) {
 	defer logObj.mu.RUnlock()
 	if logLevel <= ERROR {
 		logObj.lg.Output(2, fmt.Sprintf("[ERROR] "+format, v...))
-		console("[ERROR] "+format, v...)
+		if consoleAppender {
+			stdlog.Output(2, fmt.Sprintf("[ERROR] "+format, v...))
+		}
 	}
 }
 func Fatal(format string, v ...interface{}) {
@@ -296,7 +287,9 @@ func Fatal(format string, v ...interface{}) {
 	defer logObj.mu.RUnlock()
 	if logLevel <= FATAL {
 		logObj.lg.Output(2, fmt.Sprintf("[FATAL] "+format, v...))
-		console("[FATAL] "+format, v...)
+		if consoleAppender {
+			stdlog.Output(2, fmt.Sprintf("[FATAL] "+format, v...))
+		}
 	}
 }
 
