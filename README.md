@@ -11,6 +11,7 @@ Easy to use for any golang program.
 
 ### Usage
 
+```
 //指定是否控制台打印，默认为true  
 func SetConsole(isConsole bool)
 
@@ -36,6 +37,7 @@ func OpenRollDaily(fileDir, fileName string)
 //第五个参数为文件大小的单位  
 //logger.OpenRollSize("/var/log", "test.log", 10, 100, logger.MB)  
 func OpenRollSize(fileDir, fileName string, maxNumber int32, maxSize int64, _unit UNIT)
+```
 
 ### Example
 
@@ -56,7 +58,8 @@ func main() {
 	str := "This is a string."
 	num := 4869
 	
-	logger.Debug("string: %s\nnumber: %d\n", str, num)	
+	logger.Debug("string: %s\nnumber: %d\n", str, num)
+	logger.Debugln(str, num)	
 }
 
 ```
