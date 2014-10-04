@@ -13,21 +13,21 @@ Easy to use for any golang program.
 
 ```
 //指定是否控制台打印，默认为true  
-func SetConsole(isConsole bool)
+func (l *logFile) SetConsole(isConsole bool)
 
 //指定日志级别  ALL，DEBUG，INFO，WARN，ERROR，FATAL，OFF 级别由低到高  
 //一般习惯是测试阶段为debug，生成环境为info以上  
-func SetLevel(_level LEVEL)
+func (l *logFile) SetLevel(_level LEVEL)
 
 //默认方式新建日志，日志不进行分割  
 //第一个参数为日志文件存放目录  
 //第二个参数为日志文件命名  
-func Open(fileDir, fileName string)
+func Open(fileDir, fileName string) (*logFile, error)
 
 //指定日志文件备份方式为日期的方式  
 //第一个参数为日志文件存放目录  
 //第二个参数为日志文件命名  
-func OpenRollDaily(fileDir, fileName string)
+func OpenRollDaily(fileDir, fileName string) (*logFile, error)
 
 //指定日志文件备份方式为文件大小的方式  
 //第一个参数为日志文件存放目录  
@@ -36,7 +36,7 @@ func OpenRollDaily(fileDir, fileName string)
 //第四个参数为备份文件大小  
 //第五个参数为文件大小的单位  
 //logger.OpenRollSize("/var/log", "test.log", 10, 100, logger.MB)  
-func OpenRollSize(fileDir, fileName string, maxNumber int32, maxSize int64, _unit UNIT)
+func OpenRollSize(fileDir, fileName string, maxNumber int32, maxSize int64, _unit UNIT) (*logFile, error)
 ```
 
 ### Example
@@ -47,19 +47,23 @@ import (
 )
 
 func main() {
-	logger.OpenRollDaily("/var/log", "test.logger")
-	logger.SetConsole(true)
-	logger.SetLevel(logger.DEBUG)
-	defer logger.Close()
+	log, err := logger.Open("/tmp/logs", "zmcqdb.log")
+	if err != nil {
+		fmt.Println("Open log file failed!", err)
+		return
+	}
+	log.SetConsole(true)
+	log.SetLevel(logger.DEBUG)
+	defer log.Close()
 	
-	logger.Info("This is info test.\n")
-	logger.Debugln("This is debugln test.")
+	log.Info("This is info test.\n")
+	log.Debugln("This is debugln test.")
 	
 	str := "This is a string."
 	num := 4869
 	
-	logger.Debug("string: %s\nnumber: %d\n", str, num)
-	logger.Debugln(str, num)	
+	log.Debug("string: %s\nnumber: %d\n", str, num)
+	log.Debugln(str, num)	
 }
 
 ```
